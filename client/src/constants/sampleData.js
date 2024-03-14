@@ -19,3 +19,16 @@ export const sampleChats =[{
 
 
 ]
+
+
+export const sampleUsers = [{
+    avatar:"https://avatar.iran.liara.run/public/49",
+    name:"John Doe",
+    _id:"1"
+},
+{
+    avatar:"https://cdni.iconscout.com/illustration/premium/thumb/woman-profile-8187680-6590622.png?f=webp",
+    name:"John Doe",
+    _id:"2"
+}
+]
