@@ -11,7 +11,7 @@ import { useInputValidation } from "6pp";
 import { Search as SearchIcon } from "@mui/icons-material";
 import UserItem from "../shared/UserItem";
 import { sampleUsers } from "../../constants/sampleData";
-import { purple } from "../../constants/color";
+
 
 
 let isLoadingSendFriendRequest = false;
@@ -27,7 +27,7 @@ const Search = () => {
   const search = useInputValidation("");
   return (
     <Dialog open >
-      <Stack p={"2rem"} direction={"column"} width={"25rem"} sx={{bgcolor:purple,color:"white"}}>
+      <Stack p={"2rem"} direction={"column"} width={"25rem"} sx={{bgcolor:"rgba(225,225,225,0.9)"}}>
         <DialogTitle textAlign={"center"}>Find People</DialogTitle>
         <TextField
           label=""

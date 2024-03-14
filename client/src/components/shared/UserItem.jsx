@@ -6,11 +6,11 @@ import {
   Typography,
   
 } from "@mui/material";
-import {Add as AddIcon} from '@mui/icons-material'
+import {Add as AddIcon, Remove as RemoveIcon} from '@mui/icons-material'
 import React, { memo } from "react";
-import { btnNavy, darkBtnNavy} from "../../constants/color";
+import { btnNavy, btnRed, darkBtnNavy, darkBtnRed} from "../../constants/color";
 
-const UserItem = ({ user, handler, handlerIsLoading }) => {
+const UserItem = ({ user, handler, handlerIsLoading ,isAdded=false}) => {
   const { name, _id, avatar } = user;
 
   return (
@@ -41,15 +41,20 @@ const UserItem = ({ user, handler, handlerIsLoading }) => {
         <IconButton onClick={() => handler(_id)} disabled={handlerIsLoading}
         
         sx={{
-            bgcolor:btnNavy,
+            bgcolor:isAdded ? btnRed: btnNavy,
             color:'white',
             "&:hover":{
-                bgcolor:darkBtnNavy
+                bgcolor: isAdded ? darkBtnRed: darkBtnNavy
             }
         }}
         
         >
-          <AddIcon />
+
+          {
+            isAdded ? <RemoveIcon/> :<AddIcon />
+          }
+
+          
         </IconButton>
       </Stack>
     </ListItem>
