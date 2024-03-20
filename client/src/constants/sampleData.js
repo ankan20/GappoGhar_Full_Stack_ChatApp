@@ -16,6 +16,7 @@ export const sampleChats = [
     groupChat: true,
     members: ["1", "2"],
   },
+  
 ];
 
 export const sampleUsers = [
@@ -30,6 +31,7 @@ export const sampleUsers = [
     name: "John Doe 2",
     _id: "2",
   },
+  
 ];
 
 export const sampleNotification = [

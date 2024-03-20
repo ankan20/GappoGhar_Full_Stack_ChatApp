@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import {
+  Backdrop,
   Box,
   Button,
   Drawer,
@@ -10,7 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { purple } from "../constants/color";
+import { bgGradient, purple } from "../constants/color";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -21,13 +22,21 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import GroupList from "../components/shared/GroupList";
-import { sampleChats } from "../constants/sampleData";
+import { sampleChats, sampleUsers } from "../constants/sampleData";
+import UserItem from "../components/shared/UserItem";
+
+const ConfirmDeleteDialog = lazy(()=>import('../components/dialogs/ConfirmDeleteDialog'))
+
+const AddMemberDialog = lazy(()=>import('../components/dialogs/AddMemberDialog'))
+
+const isAddMember = false;
 
 const Groups = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [groupNameUpdatedValue, setGroupNameUpdatedValue] = useState("");
+  const [confirmDeleteDialog,setConfirmDeleteDialog] = useState(false);
   const chatId = useSearchParams()[0].get("group");
 
   const navigate = useNavigate();
@@ -45,12 +54,30 @@ const Groups = () => {
     console.log("Group name updated");
   };
 
-  const confirmDeleteHandler = ()=>{}
+  const openConfirmDeleteHandler = ()=>{
+    setConfirmDeleteDialog(true);
+  }
+
+  const closeConfirmDeleteHandler = ()=>{
+    setConfirmDeleteDialog(false);
+  }
+
+
   const openAddMemberHandler = ()=>{}
 
+  const deleteHandler = ()=>{
+    console.log("Delete handler")
+  }
+
+  const removeMemberHandler =(id)=>{
+    console.log("Removed member" ,id)
+  }
+
   useEffect(()=>{
-    setGroupName(`Group Name ${chatId}`);
-    setGroupNameUpdatedValue(`Group Name ${chatId}`);
+    if(chatId){
+      setGroupName(`Group Name ${chatId}`);
+      setGroupNameUpdatedValue(`Group Name ${chatId}`);
+    }
     return ()=>{
       setGroupName("");
     setGroupNameUpdatedValue("");
@@ -142,7 +169,7 @@ const Groups = () => {
   }}
   
   >
-    <Button size="large" color="error" variant="outlined" startIcon={<DeleteIcon/>} onClick={confirmDeleteHandler}>Delete Group</Button>
+    <Button size="large" color="error" variant="outlined" startIcon={<DeleteIcon/>} onClick={openConfirmDeleteHandler}>Delete Group</Button>
     <Button size="large" variant="contained" startIcon={<AddIcon/>} onClick={openAddMemberHandler}>Add Member </Button>
   </Stack>
 
@@ -155,9 +182,10 @@ const Groups = () => {
             xs: "none",
             sm: "block",
           },
+          
         }}
         sm={4}
-        bgcolor={purple}
+       
       >
         <GroupList groups={sampleChats} chatId={chatId} />
       </Grid>
@@ -191,17 +219,51 @@ const Groups = () => {
             md:"1rem 4rem"
           }}
           spacing={"2rem"}
-          bgcolor={purple}
+          
           height={"50vh"}
           overflow={"auto"}
         
         >
           {/* Members */}
 
+          {
+
+            sampleUsers.map((user)=>(
+              <UserItem key={user._id} user={user} isAdded styling={{
+                boxShadow : "0 0 0.5rem rgba(0,0,0,0.4)",
+                padding:"1rem 2rem",
+                borderRadius:"1rem"
+              }}
+              handler={removeMemberHandler}
+              />
+            ))
+          }
+
         </Stack>
         {ButtonGroup}
         </>}
       </Grid>
+
+      {
+        isAddMember &&  <Suspense fallback={<Backdrop open/>}>
+
+          <AddMemberDialog/>
+        </Suspense>
+      }
+
+
+     {
+        confirmDeleteDialog && <Suspense fallback={<Backdrop open/>}>
+          <ConfirmDeleteDialog open={confirmDeleteDialog} handleClose={closeConfirmDeleteHandler} deleteHandler={deleteHandler}/>
+        </Suspense>
+     }     
+
+
+
+
+
+
+
 
       <Drawer
         open={isMobileMenuOpen}
@@ -211,6 +273,7 @@ const Groups = () => {
             xs: "block",
             sm: "none",
           },
+          
         }}
       >
         <GroupList w={"50vw"} groups={sampleChats} chatId={chatId} />
