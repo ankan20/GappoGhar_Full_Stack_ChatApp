@@ -7,6 +7,8 @@ import userRouter from "./routes/user.routers.js";
 import chatRouter from "./routes/chat.routers.js";
 
 
+
+
 dotenv.config({
   path:"./.env",
 })
@@ -15,6 +17,7 @@ const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 3000;
 
 connectDB(MONGO_URI);
+
 
 
 const app = express();
