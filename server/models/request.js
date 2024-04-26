@@ -1,4 +1,4 @@
-import mongoose,{ Schema, model } from "mongoose";
+import mongoose,{ Schema, model,Types } from "mongoose";
 
 const requestSchema = new Schema({
     sender :{
@@ -18,5 +18,5 @@ const requestSchema = new Schema({
     }
 },{ timestamps: true});
 
-export const Request  =mongoose.models.Request || model("User", requestSchema);
+export const Request  =mongoose.models.Request || model("Request", requestSchema);
 

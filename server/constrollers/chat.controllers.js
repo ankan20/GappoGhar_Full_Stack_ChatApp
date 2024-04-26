@@ -15,12 +15,6 @@ import { getOtherMember } from "../lib/helper.js";
 const newGroupChat = TryCatch(async (req, res, next) => {
   const { name, members } = req.body;
 
-  if (members.length < 2) {
-    return next(
-      new ErroHandler("Group chat must have at least 3 members", 400)
-    );
-  }
-
   const allMembers = [...members, req.user];
 
   await Chat.create({
@@ -162,7 +156,7 @@ const removeMember = TryCatch(async (req, res, next) => {
   }
 
   if (chat.creator.toString() !== req.user.toString()) {
-    return next(new ErroHandler("You are not allowed to add members", 403));
+    return next(new ErroHandler("You are not allowed to remove members", 403));
   }
 
   if (!userId) {
@@ -410,10 +404,6 @@ const getMessages = TryCatch(async(req,res,next)=>{
     })
 
 })
-
-
-
-
 
 
 export {
