@@ -6,11 +6,15 @@ import { ErroHandler } from "../utils/utility.js";
 import { Chat } from "../models/chat.js";
 import {Request} from '../models/request.js';
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
+import {getOtherMember} from "../lib/helper.js"
 
 //Create a new user and save it to database and save token in cookie
-const newUser = async (req, res) => {
+const newUser = TryCatch(async (req, res,next) => {
   const { name, username, password, bio } = req.body;
-
+  const file = req.file;
+  if(!file){
+    return next(new ErroHandler("Please upload avatar",400));
+  }
   const avatar = {
     public_id: "sdddffe",
     url: "absndb",
@@ -24,7 +28,7 @@ const newUser = async (req, res) => {
   });
 
   sendToken(res, user, 201, "User created");
-};
+})
 
 //Login a existing user  and save token in cookie
 const login = TryCatch(async (req, res, next) => {
@@ -44,9 +48,9 @@ const login = TryCatch(async (req, res, next) => {
   sendToken(res, user, 201, `Welcome back ${user.name}`);
 });
 
-const getMyProfile = TryCatch(async (req, res) => {
+const getMyProfile = TryCatch(async (req, res,next) => {
   const user = await User.findById(req.user);
-
+  if(!user) return next(new ErroHandler("User not found",404));
   res.status(200).json({
     success: true,
     user,
@@ -93,7 +97,7 @@ const searchUser = TryCatch(async (req, res) => {
   });
 });
 
-const sendRequest = TryCatch(async (req, res) => {
+const sendRequest = TryCatch(async (req, res,next) => {
   const {userId} = req.body;
   const request = await Request.findOne({
     $or:[
@@ -118,19 +122,19 @@ const sendRequest = TryCatch(async (req, res) => {
     });
 });
 
-const acceptRequest = TryCatch(async (req, res) => {
+const acceptRequest = TryCatch(async (req, res,next) => {
 
   const {requestId,accept}= req.body;
   const request = await Request.findById(requestId).populate("sender","name").populate("receiver","name");
 
   if(!request) return next(new ErroHandler("Request not found",400));
 
-  if(request.receiver.toString() !== req.user.toString()){
+  if(request.receiver._id.toString() !== req.user.toString()){
     return next(new ErroHandler("You are not authorized to accept this request",401));
   }
   const members = [request.sender._id,request.receiver._id];
   if(accept){   
-    await Promiseall([Chat.create({members,name:`${request.sender.name} - ${request.receiver.name}`}),request.deleteOne()])
+    await Promise.all([Chat.create({members,name:`${request.sender.name} - ${request.receiver.name}`}),request.deleteOne()])
   }
   else {
     await request.deleteOne();
@@ -153,4 +157,63 @@ const acceptRequest = TryCatch(async (req, res) => {
     });
 });
 
-export { login, newUser, getMyProfile, logout, searchUser ,sendRequest,acceptRequest};
+const getAllNotifications = TryCatch(async (req,res,next)=>{
+  const userId = req.user;
+  const request = await Request.find({receiver:userId}).populate("sender","name avatar");
+  if(!request) return next(new ErroHandler("No friend request",400));
+  const allRequest = request.map(({_id,sender})=>({
+    _id,
+    sender:{
+      _id:sender._id,
+      name:sender.name,
+      avatar:sender.avatar.url
+    }
+   
+  }))
+
+  return res.status(200).json({
+    success:true,
+    allRequest
+  })
+
+
+})
+
+const getMyFriends = TryCatch(async (req,res,next)=>{
+  const userId = req.user;
+  const chatId = req.query.chatId;
+
+  const chats = await Chat.find({groupChat:false,members:{$in:[userId]}}).populate("members","name avatar");
+
+  const friends = chats.map(({members})=>{
+    const otherUser =getOtherMember(members,userId);
+    return {
+      _id:otherUser._id,
+      name:otherUser.name,
+      avatar:otherUser.avatar.url
+    }
+  })
+
+  if(chatId){
+    const chat = await Chat.findById(chatId);
+    const availableFriends = friends.filter((friend)=> !chat.members.includes(friend._id));
+
+    return res.status(200).json({
+      success:true,
+      friends:availableFriends
+    })
+  }
+  else {
+    return res.status(200).json({
+      success:true,
+      friends
+    })
+  }
+
+
+
+
+})
+
+
+export { login, newUser, getMyProfile, logout, searchUser ,sendRequest,acceptRequest , getAllNotifications , getMyFriends};

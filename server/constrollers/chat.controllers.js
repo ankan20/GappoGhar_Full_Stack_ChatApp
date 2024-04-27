@@ -238,15 +238,19 @@ const sendAttachments = TryCatch(async (req, res, next) => {
   const { chatId } = req.body;
   const chat = await Chat.findById(chatId);
   const user = await User.findById(req.user, "name");
+  const files = req.files || [];
 
   if (!chat) {
     return next(new ErroHandler("Chat not found", 404));
   }
 
-  const files = req.files || [];
+ 
 
   if (!files || files.length === 0) {
     return next(new ErroHandler("Please provide attachments", 400));
+  }
+  if ( files.length >5) {
+    return next(new ErroHandler("Files can't be more than 5", 400));
   }
 
   const attachments = [];

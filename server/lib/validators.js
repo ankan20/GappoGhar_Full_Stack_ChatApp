@@ -1,4 +1,4 @@
-import {body,validationResult,check, param, query} from 'express-validator'
+import {body,validationResult, param, query} from 'express-validator'
 import { ErroHandler } from '../utils/utility.js';
 
 
@@ -13,7 +13,6 @@ const registerValidator =()=>[
     body("username","Please Enter username").notEmpty(),
     body("password","Please Enter password").notEmpty(),
     body("bio","Please Enter bio").notEmpty(),
-    check("avatar","Please Upload Avatar").notEmpty()
 ];
 
 
@@ -61,6 +60,10 @@ const acceptFriendRequestValidator = ()=>[
     body("accept").notEmpty().withMessage("Please Add Accept").isBoolean().withMessage("Accept must be a boolean"),
 ]
 
+const adminLoginValidator = ()=>[
+    body("secretkey","Please provide secretkey").notEmpty(),
+]
 
 
-export {registerValidator,validateHandler,loginValidator,newGroupChatValidator,addMembersValidator,removeMemberValidator,sendAttachmentValidator,chatIdValidator,renameGroupValidator,sendFriendRequestValidator,acceptFriendRequestValidator};
+
+export {registerValidator,validateHandler,loginValidator,newGroupChatValidator,addMembersValidator,removeMemberValidator,sendAttachmentValidator,chatIdValidator,renameGroupValidator,sendFriendRequestValidator,acceptFriendRequestValidator,adminLoginValidator};
