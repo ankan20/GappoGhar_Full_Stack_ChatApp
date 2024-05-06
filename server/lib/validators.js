@@ -1,4 +1,4 @@
-import {body,validationResult, param, query} from 'express-validator'
+import {body,validationResult, param} from 'express-validator'
 import { ErroHandler } from '../utils/utility.js';
 
 
